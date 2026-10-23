@@ -1,121 +1,86 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import Header from './components/Header'
+import RingkasanRute from './components/RingkasanRute'
+import FilterKategori from './components/FilterKategori'
+import DaftarRute from './components/DaftarRute'
+import FormTambahRute from './components/FormTambahRute'
+import Footer from './components/Footer'
+import { dataAwalRute, KATEGORI, TINGKAT, GAMBAR_DEFAULT } from './data/dataRute'
 
 function App() {
-  const [count, setCount] = useState(0)
+  // State utama: daftar rute (array) + kategori filter yang sedang aktif
+  const [daftarRute, setDaftarRute] = useState(dataAwalRute)
+  const [kategoriAktif, setKategoriAktif] = useState('semua')
+
+  function tambahRute(ruteBaru) {
+    const kategori = KATEGORI.find((k) => k.key === ruteBaru.kategori)
+    const rute = {
+      ...ruteBaru,
+      id: crypto.randomUUID(),
+      tipe: kategori.nama,
+      catatan: 'Ditambahkan oleh anggota komunitas',
+      gambar: GAMBAR_DEFAULT[ruteBaru.kategori],
+    }
+    // Rute terbaru ditaruh di depan agar langsung terlihat
+    setDaftarRute([rute, ...daftarRute])
+  }
+
+  function hapusRute(id) {
+    setDaftarRute(daftarRute.filter((rute) => rute.id !== id))
+  }
+
+  const ruteTampil =
+    kategoriAktif === 'semua' ? daftarRute : daftarRute.filter((rute) => rute.kategori === kategoriAktif)
+
+  const jumlahPerKategori = KATEGORI.reduce((hasil, k) => {
+    hasil[k.key] = daftarRute.filter((rute) => rute.kategori === k.key).length
+    return hasil
+  }, {})
+
+  const totalJarak = Math.round(daftarRute.reduce((total, rute) => total + rute.jarak, 0))
+  const totalElevasi = daftarRute.reduce((total, rute) => total + rute.elevasi, 0)
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div id="atas" className="flex min-h-screen flex-col">
+      <Header namaAplikasi={{ awal: 'Pedal', akhir: 'Raya' }} />
 
-      <div className="ticks"></div>
+      <main className="flex-1 py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sage">
+              <span>Koleksi Rute Terverifikasi</span>
+              <span aria-hidden="true">·</span>
+              <span>Outdoor &amp; Nature</span>
+            </div>
+            <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-forest-dark sm:text-4xl">
+              Katalog Rute Bersepeda
+            </h1>
+            <p className="max-w-2xl text-base text-charcoal/75">
+              Pilih jalur petualangan berdasarkan disiplin sepeda Anda, atau tambahkan rute favorit Anda sendiri ke katalog.
+            </p>
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          <RingkasanRute totalRute={daftarRute.length} totalJarak={totalJarak} totalElevasi={totalElevasi} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          <section id="rute" className="scroll-mt-28">
+            <FilterKategori
+              daftarKategori={KATEGORI}
+              kategoriAktif={kategoriAktif}
+              onPilih={setKategoriAktif}
+              jumlahPerKategori={jumlahPerKategori}
+              totalRute={daftarRute.length}
+            />
+            <DaftarRute daftarRute={ruteTampil} totalSemuaRute={daftarRute.length} onHapus={hapusRute} />
+          </section>
+
+          <div className="mt-16">
+            <FormTambahRute daftarKategori={KATEGORI} daftarTingkat={TINGKAT} onTambah={tambahRute} />
+          </div>
+        </div>
+      </main>
+
+      <Footer namaAplikasi="PedalRaya" />
+    </div>
   )
 }
 
