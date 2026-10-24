@@ -1,8 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { INITIAL_COMMUNITIES } from '../data/mockData';
+
+const CHAT_STORAGE_KEY = 'pedalraya-community-chats';
+const CHAT_NAME_KEY = 'pedalraya-chat-name';
+
+const AUTO_REPLIES = [
+  'Siap, noted! Nanti detailnya kami info di grup ya 👍',
+  'Mantap! Jangan lupa bawa air minum, helm, dan ban serep 🚴',
+  'Boleh banget ikut, semua level diterima di sini.',
+  'Titik kumpul dan jam start biasanya kami umumkan sehari sebelumnya.',
+];
+
+// Pesan pembuka tiap komunitas (contoh/demo)
+const seedChat = (c) => [
+  { id: `${c.id}-s1`, sender: 'Road Captain', mine: false, time: '06.12', text: `Selamat datang di ruang obrolan ${c.nama}! 👋` },
+  { id: `${c.id}-s2`, sender: 'Rina', mine: false, time: '06.15', text: `Jadwal rutin kita: ${c.jadwal}. Titik kumpul diumumkan di sini ya.` },
+  { id: `${c.id}-s3`, sender: 'Dimas', mine: false, time: '06.20', text: 'Pemula boleh ikut? Sepeda saya masih standar.' },
+  { id: `${c.id}-s4`, sender: 'Road Captain', mine: false, time: '06.22', text: 'Boleh banget, no one left behind. Bawa air, helm, dan ban serep ya 🚴' },
+];
+
+const nowTime = () =>
+  new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+
+const loadStored = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+};
 
 export default function CommunitySection() {
   const [communities, setCommunities] = useState(INITIAL_COMMUNITIES);
+  const [chatCommunity, setChatCommunity] = useState(null);
+  const [chats, setChats] = useState(() => loadStored(CHAT_STORAGE_KEY, {}));
+  const [chatName, setChatName] = useState(() => loadStored(CHAT_NAME_KEY, ''));
+  const [chatInput, setChatInput] = useState('');
+  const chatBodyRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showRegModal, setShowRegModal] = useState(false);
   const [newComm, setNewComm] = useState({
@@ -14,6 +49,64 @@ export default function CommunitySection() {
     kontak: '',
   });
   const [successBanner, setSuccessBanner] = useState('');
+
+  const activeMessages = chatCommunity ? chats[chatCommunity.id] ?? seedChat(chatCommunity) : [];
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chats));
+    } catch {
+      /* penyimpanan tidak tersedia, abaikan */
+    }
+  }, [chats]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_NAME_KEY, JSON.stringify(chatName));
+    } catch {
+      /* abaikan */
+    }
+  }, [chatName]);
+
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [activeMessages.length, chatCommunity]);
+
+  const appendMessage = (community, message) => {
+    setChats((prev) => ({
+      ...prev,
+      [community.id]: [...(prev[community.id] ?? seedChat(community)), message],
+    }));
+  };
+
+  const handleSendChat = (e) => {
+    e.preventDefault();
+    const text = chatInput.trim();
+    if (!text || !chatCommunity) return;
+
+    const community = chatCommunity;
+    appendMessage(community, {
+      id: `m-${Date.now()}`,
+      sender: chatName.trim() || 'Kamu',
+      mine: true,
+      time: nowTime(),
+      text,
+    });
+    setChatInput('');
+
+    // Balasan otomatis (demo, belum terhubung ke server chat sungguhan)
+    setTimeout(() => {
+      appendMessage(community, {
+        id: `r-${Date.now()}`,
+        sender: 'Road Captain',
+        mine: false,
+        time: nowTime(),
+        text: AUTO_REPLIES[Math.floor(Math.random() * AUTO_REPLIES.length)],
+      });
+    }, 1200);
+  };
 
   const filteredCommunities = communities.filter((c) => {
     if (!searchTerm.trim()) return true;
@@ -178,19 +271,119 @@ export default function CommunitySection() {
                   <div>⏰ <strong>Jadwal:</strong> {c.jadwal}</div>
                   <div>📱 <strong>Instagram:</strong> {c.kontak}</div>
                 </div>
-                <a
-                  href={`https://instagram.com`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full py-2 px-3 rounded-xl text-center text-xs font-bold text-[#244B37] bg-[#F6F4ED] hover:bg-[#244B37] hover:text-white transition-colors block"
-                >
-                  Hubungi Komunitas
-                </a>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setChatCommunity(c)}
+                    className="w-full py-2 px-3 rounded-xl text-center text-xs font-bold text-white bg-[#244B37] hover:bg-[#183426] transition-colors cursor-pointer"
+                  >
+                    💬 Buka Chat Komunitas
+                  </button>
+                  <a
+                    href={`https://instagram.com`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-2 px-3 rounded-xl text-center text-xs font-bold text-[#244B37] bg-[#F6F4ED] hover:bg-[#244B37] hover:text-white transition-colors block"
+                  >
+                    Hubungi Komunitas
+                  </a>
+                </div>
               </div>
             </article>
           ))}
         </div>
       </div>
+
+      {/* Modal Chat Komunitas */}
+      {chatCommunity && (
+        <div
+          className="fixed inset-0 z-50 bg-[#183426]/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setChatCommunity(null)}
+        >
+          <div
+            className="bg-white rounded-3xl w-full max-w-lg h-[80vh] max-h-[640px] flex flex-col border border-[#244B37]/15 shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header chat */}
+            <div className="px-5 py-4 bg-[#244B37] text-white flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="text-base font-bold truncate">💬 {chatCommunity.nama}</h3>
+                <span className="text-[11px] text-[#D8C8A6] block truncate">
+                  {chatCommunity.anggota} · {chatCommunity.lokasi}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChatCommunity(null)}
+                className="w-8 h-8 shrink-0 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center cursor-pointer"
+                aria-label="Tutup chat"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Nama pengirim */}
+            <div className="px-5 py-2.5 border-b border-[#244B37]/10 bg-[#F6F4ED] flex items-center gap-2 text-xs">
+              <label htmlFor="chat-name" className="font-bold text-[#183426] whitespace-nowrap">
+                Nama kamu:
+              </label>
+              <input
+                id="chat-name"
+                type="text"
+                value={chatName}
+                onChange={(e) => setChatName(e.target.value)}
+                placeholder="Misal: Andi"
+                maxLength={20}
+                className="flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-[#244B37]/20 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#244B37]"
+              />
+            </div>
+
+            {/* Daftar pesan */}
+            <div ref={chatBodyRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-[#F6F4ED]/50">
+              {activeMessages.map((m) => (
+                <div key={m.id} className={`flex ${m.mine ? 'justify-end' : 'justify-start'}`}>
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed shadow-sm ${
+                      m.mine
+                        ? 'bg-[#244B37] text-white rounded-br-md'
+                        : 'bg-white text-[#292D28] border border-[#244B37]/10 rounded-bl-md'
+                    }`}
+                  >
+                    {!m.mine && (
+                      <strong className="block text-[11px] text-[#78916A] mb-0.5">{m.sender}</strong>
+                    )}
+                    <span className="whitespace-pre-line break-words">{m.text}</span>
+                    <span className={`block text-[10px] mt-1 text-right ${m.mine ? 'text-white/60' : 'text-[#292D28]/40'}`}>
+                      {m.time}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input pesan */}
+            <form onSubmit={handleSendChat} className="p-3 border-t border-[#244B37]/10 flex items-center gap-2 bg-white">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Tulis pesan untuk komunitas..."
+                className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
+              />
+              <button
+                type="submit"
+                disabled={!chatInput.trim()}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#244B37] hover:bg-[#183426] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                Kirim
+              </button>
+            </form>
+            <p className="px-4 pb-2.5 text-[10px] text-center text-[#292D28]/45 bg-white">
+              Mode demo: pesan tersimpan di browser ini dan balasan Road Captain bersifat otomatis.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Modal Daftarkan Komunitas */}
       {showRegModal && (

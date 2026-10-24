@@ -32,7 +32,11 @@ export default function ProductDetailModal({ product, onClose }) {
     maximumFractionDigits: 0,
   }).format(harga);
 
-  const galleryList = [foto, ...(galeri.length > 0 ? galeri : ['/assets/images/camp2.jpg', '/assets/images/camp3.jpg'])].slice(0, 5);
+  // Road Bike Aluminium 2×11 Shimano 105 (prod-1) tetap memakai galeri lengkap.
+  // Produk lain tidak menampilkan gambar kecil sama sekali.
+  const isFullGalleryProduct = product.id === 'prod-1';
+  const supportingPhotos = galeri.length > 0 ? galeri : ['/assets/images/camp2.jpg', '/assets/images/camp3.jpg'];
+  const galleryList = isFullGalleryProduct ? [foto, ...supportingPhotos].slice(0, 5) : [];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#183426]/70 backdrop-blur-sm flex items-start justify-center p-3 sm:p-6">
@@ -82,7 +86,8 @@ export default function ProductDetailModal({ product, onClose }) {
                   </span>
                 </div>
 
-                {/* Thumbnails */}
+                {/* Thumbnails (hanya untuk Road Bike Aluminium 2×11 Shimano 105) */}
+                {isFullGalleryProduct && (
                 <div className="grid grid-cols-5 gap-2.5 mt-3">
                   {galleryList.map((g, idx) => (
                     <button
@@ -96,6 +101,7 @@ export default function ProductDetailModal({ product, onClose }) {
                     </button>
                   ))}
                 </div>
+                )}
               </div>
 
               {/* Description */}

@@ -173,7 +173,21 @@ export default function EventsSection() {
             </div>
 
             <div className="lg:col-span-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-[#183426] mb-2">{ev.nama}</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-[#183426] mb-3">{ev.nama}</h3>
+              {ev.foto && (
+                <div className="rounded-xl overflow-hidden aspect-[16/9] bg-[#e8ede4] mb-3">
+                  <img
+                    src={ev.foto}
+                    alt={ev.nama}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/assets/images/pexels-run-ffwpu-5687405.jpg';
+                    }}
+                  />
+                </div>
+              )}
               <p className="text-xs font-semibold text-[#78916A] mb-3">{ev.lokasi}</p>
               <p className="text-sm text-[#292D28]/80 leading-relaxed mb-4">{ev.deskripsi}</p>
               <div className="flex flex-wrap gap-4 text-xs text-[#292D28]/70">

@@ -76,7 +76,21 @@ export default function SpotsSection() {
                 </span>
                 <span className="text-xs text-[#78916A]">{spot.jam}</span>
               </div>
-              <h3 className="text-xl font-bold text-[#183426] mb-1">{spot.nama}</h3>
+              <h3 className="text-xl font-bold text-[#183426] mb-3">{spot.nama}</h3>
+              {spot.foto && (
+                <div className="rounded-xl overflow-hidden aspect-[16/10] bg-[#e8ede4] mb-3">
+                  <img
+                    src={spot.foto}
+                    alt={spot.nama}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/assets/images/about.jpg';
+                    }}
+                  />
+                </div>
+              )}
               <span className="text-xs text-[#78916A] block mb-3">📍 {spot.lokasi}</span>
               <p className="text-xs text-[#292D28]/75 leading-relaxed mb-4">
                 {spot.deskripsi}

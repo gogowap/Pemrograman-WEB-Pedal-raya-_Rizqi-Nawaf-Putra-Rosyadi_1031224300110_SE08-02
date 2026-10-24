@@ -505,6 +505,7 @@ export const INITIAL_EVENTS = [
   {
     id: "event-1",
     nama: "Bromo Gravel Odyssey 2026",
+    foto: "/assets/images/gravel komunitas.png",
     kategori: "mtb",
     kategoriLabel: "Gravel & All-Road",
     hari: "Sabtu",
@@ -520,6 +521,7 @@ export const INITIAL_EVENTS = [
   {
     id: "event-2",
     nama: "Tour de Borobudur Heritage 2026",
+    foto: "/assets/images/Merapi Foothills Classic Loop.jpg",
     kategori: "road",
     kategoriLabel: "Road Gran Fondo",
     hari: "Minggu",
@@ -535,6 +537,7 @@ export const INITIAL_EVENTS = [
   {
     id: "event-3",
     nama: "Gowes Hijau & Tanam Pohon Halimun",
+    foto: "/assets/images/Jalur Kabut Pinus Mangunan.webp",
     kategori: "fun",
     kategoriLabel: "Charity Fun Ride",
     hari: "Minggu",
@@ -550,6 +553,7 @@ export const INITIAL_EVENTS = [
   {
     id: "event-4",
     nama: "Brevet 200 km Lingkar Merbabu - Lawu",
+    foto: "/assets/images/Lintas Cangar Pegunungan Welirang.jpg",
     kategori: "touring",
     kategoriLabel: "Audax Brevet 200 BRM",
     hari: "Sabtu",
@@ -568,6 +572,7 @@ export const INITIAL_SPOTS = [
   {
     id: "spot-1",
     nama: "Kedai Kopi Tanjakan Km 18",
+    foto: "/assets/images/about.jpg",
     kategori: "cafe",
     kategoriBadge: "☕ Kedai Kopi",
     jam: "Buka 05.30 WIB",
@@ -578,6 +583,7 @@ export const INITIAL_SPOTS = [
   {
     id: "spot-2",
     nama: "Pit Stop Omah Dhuwur Imogiri",
+    foto: "/assets/images/Jalur Perbukitan Menoreh.jpg",
     kategori: "cafe",
     kategoriBadge: "☕ Kafe & Rest Area",
     jam: "Buka 06.00 WIB",
@@ -588,6 +594,7 @@ export const INITIAL_SPOTS = [
   {
     id: "spot-3",
     nama: "Bengkel Sepeda Barokah Speed",
+    foto: "/assets/images/camp4.jpg",
     kategori: "workshop",
     kategoriBadge: "🔧 Bengkel & Servis",
     jam: "Buka Tiap Hari 07.00 - 18.00 WIB",
@@ -598,6 +605,7 @@ export const INITIAL_SPOTS = [
   {
     id: "spot-4",
     nama: "Kios Servis & P3K Rimba Halimun",
+    foto: "/assets/images/mtb.jpg",
     kategori: "workshop",
     kategoriBadge: "🔧 Servis Trail & Part",
     jam: "Sabtu & Minggu 06.30 - 16.00 WIB",
@@ -608,6 +616,7 @@ export const INITIAL_SPOTS = [
   {
     id: "spot-5",
     nama: "Pos Air & Istirahat Gardu Pandang Sembalun",
+    foto: "/assets/images/Tanjakan Lingkar Kaldera Sembalun.jpg",
     kategori: "rest",
     kategoriBadge: "🏞️ Rest Area & Sumber Air",
     jam: "Akses 24 Jam",
@@ -618,6 +627,7 @@ export const INITIAL_SPOTS = [
   {
     id: "spot-6",
     nama: "Pedal House Bike Shop & Apparel",
+    foto: "/assets/images/camp.jpg",
     kategori: "shop",
     kategoriBadge: "🛍️ Toko Sepeda & Apparel",
     jam: "Senin - Sabtu 09.00 - 19.30 WIB",
