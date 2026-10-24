@@ -124,11 +124,7 @@ export default function App() {
     <div className="bg-[#F6F4ED] text-[#292D28] antialiased min-h-screen flex flex-col selection:bg-[#78916A]/20 selection:text-[#183426]">
       
       {/* Komponen Header */}
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenAddProduct={() => setIsAddProductOpen(true)}
-      />
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Global Toast */}
       {toastMessage && (

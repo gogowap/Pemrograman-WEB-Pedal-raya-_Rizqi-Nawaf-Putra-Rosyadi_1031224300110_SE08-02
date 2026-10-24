@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ activeTab, setActiveTab, onOpenAddProduct }) {
+export default function Header({ activeTab, setActiveTab }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -62,18 +62,8 @@ export default function Header({ activeTab, setActiveTab, onOpenAddProduct }) {
           })}
         </nav>
 
-        {/* Zone 3: Primary Action + Mobile Trigger */}
+        {/* Zone 3: Mobile Trigger */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {activeTab === 'marketplace' && (
-            <button
-              onClick={onOpenAddProduct}
-              className="hidden sm:inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#244B37] hover:bg-[#183426] transition-all shadow-sm whitespace-nowrap shrink-0 gap-1.5 cursor-pointer"
-            >
-              <span className="text-base font-bold leading-none">+</span>
-              <span>Pasang Iklan</span>
-            </button>
-          )}
-
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -107,17 +97,6 @@ export default function Header({ activeTab, setActiveTab, onOpenAddProduct }) {
               {item.label}
             </button>
           ))}
-          <div className="grid grid-cols-1 gap-2 mt-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAddProduct();
-              }}
-              className="text-center py-2.5 px-3 rounded-xl font-semibold text-xs text-[#244B37] bg-white border border-[#244B37]/20 shadow-sm"
-            >
-              + Pasang Iklan
-            </button>
-          </div>
         </div>
       )}
     </header>
