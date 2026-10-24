@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LocalPhotoTiles from './LocalPhotoTiles';
 
 const SAMPLE_PHOTOS = [
   { label: 'Hutan Pinus Mangunan', url: '/assets/images/Jalur Kabut Pinus Mangunan.webp' },
@@ -26,6 +27,8 @@ export default function RouteForm({ onAddRoute, onClose }) {
   });
 
   const [errorMsg, setErrorMsg] = useState('');
+  const [uploadedPhoto, setUploadedPhoto] = useState('');
+  const [photoError, setPhotoError] = useState('');
 
   // Controlled component input change handler
   const handleChange = (e) => {
@@ -264,9 +267,19 @@ export default function RouteForm({ onAddRoute, onClose }) {
           {/* Photo Selection */}
           <div>
             <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1.5">
-              Pilih Foto Sampul Jalur
+              Pilih atau Unggah Foto Sampul Jalur
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+              <LocalPhotoTiles
+                uploadedPhoto={uploadedPhoto}
+                selected={formData.foto === uploadedPhoto}
+                onUpload={(url) => {
+                  setUploadedPhoto(url);
+                  setFormData((prev) => ({ ...prev, foto: url }));
+                }}
+                onSelect={() => setFormData((prev) => ({ ...prev, foto: uploadedPhoto }))}
+                onError={setPhotoError}
+              />
               {SAMPLE_PHOTOS.map((p, idx) => (
                 <button
                   key={idx}
@@ -283,6 +296,7 @@ export default function RouteForm({ onAddRoute, onClose }) {
                 </button>
               ))}
             </div>
+            {photoError && <p className="text-xs text-red-600 mt-1.5">{photoError}</p>}
           </div>
 
           <div>

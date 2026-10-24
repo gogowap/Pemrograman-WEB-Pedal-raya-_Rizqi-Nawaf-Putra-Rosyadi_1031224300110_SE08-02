@@ -25,19 +25,25 @@ export default function App() {
   // 5.a: Simpan daftar item sebagai state (array) di App.jsx
   const [routes, setRoutes] = useState(INITIAL_ROUTES);
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
+
   // Tab navigation state
   const [activeTab, setActiveTab] = useState('beranda');
+
   // Detail Modal states
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   // Form Modal states
   const [isAddRouteOpen, setIsAddRouteOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+
   // Favorites state
   const [favoriteRoutes, setFavoriteRoutes] = useState(['route-1', 'route-2']);
   const [favoriteProducts, setFavoriteProducts] = useState(['prod-1', 'prod-2']);
+
   // Global toast
   const [toastMessage, setToastMessage] = useState('');
+
   // Home Quick search state
   const [homeSearch, setHomeSearch] = useState({
     lokasi: '',
@@ -121,7 +127,6 @@ export default function App() {
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenAddRoute={() => setIsAddRouteOpen(true)}
         onOpenAddProduct={() => setIsAddProductOpen(true)}
       />
 
