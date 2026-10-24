@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpenAddProduct }) {
+export default function Header({ activeTab, setActiveTab, onOpenAddProduct }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -64,21 +64,13 @@ export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpen
 
         {/* Zone 3: Primary Action + Mobile Trigger */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {activeTab === 'marketplace' ? (
+          {activeTab === 'marketplace' && (
             <button
               onClick={onOpenAddProduct}
               className="hidden sm:inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#244B37] hover:bg-[#183426] transition-all shadow-sm whitespace-nowrap shrink-0 gap-1.5 cursor-pointer"
             >
               <span className="text-base font-bold leading-none">+</span>
               <span>Pasang Iklan</span>
-            </button>
-          ) : (
-            <button
-              onClick={onOpenAddRoute}
-              className="hidden sm:inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#244B37] hover:bg-[#183426] transition-all shadow-sm whitespace-nowrap shrink-0 gap-1.5 cursor-pointer"
-            >
-              <span className="text-base font-bold leading-none">+</span>
-              <span>Tambah Rute</span>
             </button>
           )}
 
@@ -115,16 +107,7 @@ export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpen
               {item.label}
             </button>
           ))}
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAddRoute();
-              }}
-              className="text-center py-2.5 px-3 rounded-xl font-semibold text-xs text-white bg-[#244B37] shadow-sm"
-            >
-              + Tambah Rute
-            </button>
+          <div className="grid grid-cols-1 gap-2 mt-2">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
