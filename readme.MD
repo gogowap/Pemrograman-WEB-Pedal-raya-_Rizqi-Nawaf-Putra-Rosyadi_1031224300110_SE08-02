@@ -3,7 +3,7 @@
 
 ---
 
-## 📌 Identitas Mahasiswa
+## Identitas Mahasiswa
 
 - **Nama Lengkap:** Rizqi Nawaf Putra Rosyadi
 - **NIM:** 103122430010
@@ -13,7 +13,7 @@
 
 ---
 
-## 📖 Deskripsi Singkat Proyek
+## Deskripsi Singkat Proyek
 
 **PedalRaya** adalah aplikasi fullstack berbasis web yang dirancang khusus untuk ekosistem komunitas pesepeda di Indonesia. Aplikasi ini memungkinkan para pegiat gowes untuk:
 1. **Menjelajahi & Berbagi Rute Bersepeda:** Melihat informasi jarak, elevasi, perkiraan waktu tempuh, kondisi jalur, hingga rekomendasi rasio gigi/ban.
@@ -25,7 +25,7 @@ Pada **Bab 9**, fondasi backend dibangun menggunakan **NestJS** dengan menerapka
 
 ---
 
-## 🛠️ Struktur Proyek (Monorepo Folder)
+## Struktur Proyek (Monorepo Folder)
 
 ```text
 Pedalraya/
@@ -82,7 +82,7 @@ Pedalraya/
 
 ---
 
-## 🚀 Panduan Instalasi & Menjalankan Aplikasi
+## Panduan Instalasi & Menjalankan Aplikasi
 
 Pastikan di komputer Anda telah terinstal **Node.js** (minimal v18/v20) dan **npm**.
 
@@ -128,7 +128,7 @@ Aplikasi frontend akan aktif di:
 
 ---
 
-## 📋 Pembahasan Rinci 8 Butir Pengerjaan Tugas Bab 9
+## Pembahasan Rinci 8 Butir Pengerjaan Tugas Bab 9
 
 ### 1. Data Utama Aplikasi
 - **Data Utama:** **Rute Bersepeda (`Route`)**
@@ -249,7 +249,7 @@ Frontend React (`frontend`) telah disambungkan ke backend NestJS melalui client 
 
 ---
 
-## 📸 Lampiran Tangkapan Layar (Screenshots)
+## Lampiran Tangkapan Layar (Screenshots)
 
 Berikut adalah dokumentasi hasil uji coba REST Client dan antarmuka aplikasi terintegrasi:
 
@@ -317,6 +317,6 @@ Berikut adalah dokumentasi hasil uji coba REST Client dan antarmuka aplikasi ter
 
 ---
 
-## 📦 Informasi Pengumpulan
+## Informasi Pengumpulan
 - **Link Repository GitHub:** https://github.com/gogowap/Pemrograman-WEB-Pedal-raya-_Rizqi-Nawaf-Putra-Rosyadi_1031224300110_SE08-02.git
 - **Pengumpulan:** LMS Telkom University / Sesuai Instruksi Dosen Pengampu Bab 9.
