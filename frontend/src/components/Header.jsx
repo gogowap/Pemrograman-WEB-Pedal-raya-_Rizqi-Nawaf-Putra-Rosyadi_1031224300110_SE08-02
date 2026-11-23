@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpenAddProduct }) {
+export default function Header({ activeTab, setActiveTab, backendStatus, onRefreshBackend }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -42,7 +42,7 @@ export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpen
           </span>
         </button>
 
-        {/* Zone 2: Navigation Links (Quiet, single-line typography) */}
+        {/* Zone 2: Navigation Links */}
         <nav className="hidden lg:flex items-center gap-5 xl:gap-7 text-sm font-semibold text-[#292D28]/80">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
@@ -52,7 +52,7 @@ export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpen
                 onClick={() => handleNavClick(item.id)}
                 className={`transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                   isActive
-                    ? 'text-[#244B37] border-b-2 border-[#244B37] pb-1'
+                    ? 'text-[#244B37] border-b-2 border-[#244B37] pb-1 font-bold'
                     : 'hover:text-[#244B37]'
                 }`}
               >
@@ -62,25 +62,37 @@ export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpen
           })}
         </nav>
 
-        {/* Zone 3: Primary Action + Mobile Trigger */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {activeTab === 'marketplace' ? (
-            <button
-              onClick={onOpenAddProduct}
-              className="hidden sm:inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#244B37] hover:bg-[#183426] transition-all shadow-sm whitespace-nowrap shrink-0 gap-1.5 cursor-pointer"
-            >
-              <span className="text-base font-bold leading-none">+</span>
-              <span>Pasang Iklan</span>
-            </button>
-          ) : (
-            <button
-              onClick={onOpenAddRoute}
-              className="hidden sm:inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#244B37] hover:bg-[#183426] transition-all shadow-sm whitespace-nowrap shrink-0 gap-1.5 cursor-pointer"
-            >
-              <span className="text-base font-bold leading-none">+</span>
-              <span>Tambah Rute</span>
-            </button>
-          )}
+        {/* Zone 3: Backend Status & Mobile Trigger */}
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Backend Status Pill */}
+          <div
+            onClick={onRefreshBackend}
+            className={`cursor-pointer px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all ${
+              backendStatus === 'connected'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                : backendStatus === 'checking'
+                ? 'bg-amber-50 text-amber-800 border-amber-300'
+                : 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100'
+            }`}
+            title="Status koneksi NestJS Backend (Klik untuk re-sync)"
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                backendStatus === 'connected'
+                  ? 'bg-emerald-500 animate-pulse'
+                  : backendStatus === 'checking'
+                  ? 'bg-amber-500 animate-ping'
+                  : 'bg-rose-500'
+              }`}
+            />
+            <span className="hidden sm:inline">
+              {backendStatus === 'connected'
+                ? 'NestJS API Terhubung'
+                : backendStatus === 'checking'
+                ? 'Menghubungkan...'
+                : 'Mode Offline (Klik Re-sync)'}
+            </span>
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -115,26 +127,6 @@ export default function Header({ activeTab, setActiveTab, onOpenAddRoute, onOpen
               {item.label}
             </button>
           ))}
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAddRoute();
-              }}
-              className="text-center py-2.5 px-3 rounded-xl font-semibold text-xs text-white bg-[#244B37] shadow-sm"
-            >
-              + Tambah Rute
-            </button>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAddProduct();
-              }}
-              className="text-center py-2.5 px-3 rounded-xl font-semibold text-xs text-[#244B37] bg-white border border-[#244B37]/20 shadow-sm"
-            >
-              + Pasang Iklan
-            </button>
-          </div>
         </div>
       )}
     </header>

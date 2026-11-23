@@ -1,0 +1,85 @@
+### ========================================================
+### PEDALRAYA API - TESTING DENGAN REST CLIENT (VS CODE)
+### ========================================================
+@baseUrl = http://localhost:3000
+
+### 1. GET ALL ROUTES - Mengambil seluruh data rute
+GET {{baseUrl}}/routes
+Accept: application/json
+
+### --------------------------------------------------------
+### 2. GET SINGLE ROUTE - Mengambil rute berdasarkan ID (Sukses)
+GET {{baseUrl}}/routes/route-1
+Accept: application/json
+
+### --------------------------------------------------------
+### 3. POST CREATE ROUTE - Menambahkan rute baru (Sukses 201)
+POST {{baseUrl}}/routes
+Content-Type: application/json
+
+{
+  "nama": "Gowes Keliling Danau BSD Grand City",
+  "kategori": "road",
+  "lokasi": "BSD City, Tangerang Selatan",
+  "jarak": 25.5,
+  "elevasi": 120,
+  "kesulitan": "mudah",
+  "durasi": "1.5 Jam",
+  "kondisi": "Aspal Halus & Ramah Pesepeda",
+  "rekomendasi": "Cocok untuk Road Bike & Sepeda Lipat",
+  "foto": "/assets/images/pexels-run-ffwpu-5687405.jpg",
+  "deskripsi": "Rute santai akhir pekan menyusuri area hijau dan danau modern di BSD.",
+  "terverifikasi": true
+}
+
+### --------------------------------------------------------
+### 4. PATCH UPDATE ROUTE - Mengubah sebagian data rute (Sukses 200)
+PATCH {{baseUrl}}/routes/route-1
+Content-Type: application/json
+
+{
+  "kondisi": "Aspal Baru Diaspal Ulang & Sangat Mulus",
+  "durasi": "2.0 Jam",
+  "jarak": 40.0
+}
+
+### --------------------------------------------------------
+### 5. DELETE ROUTE - Menghapus rute berdasarkan ID (Sukses 200)
+DELETE {{baseUrl}}/routes/route-5
+Accept: application/json
+
+### --------------------------------------------------------
+### 6. SKENARIO ERROR 1: NotFoundException (404 Not Found)
+### Mengakses ID rute yang tidak terdaftar di memori backend
+GET {{baseUrl}}/routes/route-999-tidak-ada
+Accept: application/json
+
+### --------------------------------------------------------
+### 7. SKENARIO ERROR 2: ConflictException (409 Conflict)
+### Mencoba menambahkan rute dengan nama yang sudah ada (duplikat)
+POST {{baseUrl}}/routes
+Content-Type: application/json
+
+{
+  "nama": "Jalur Kabut Pinus Mangunan",
+  "kategori": "gravel",
+  "lokasi": "Bantul, Yogyakarta",
+  "jarak": 35.0,
+  "elevasi": 500,
+  "kesulitan": "menengah"
+}
+
+### --------------------------------------------------------
+### 8. SKENARIO ERROR 3: BadRequestException (400 Bad Request)
+### Validasi class-validator gagal (jarak minus, kategori tidak valid, nama terlalu pendek)
+POST {{baseUrl}}/routes
+Content-Type: application/json
+
+{
+  "nama": "A",
+  "kategori": "pesawat_terbang",
+  "lokasi": "Jakarta",
+  "jarak": -10,
+  "elevasi": -50,
+  "kesulitan": "mustahil"
+}

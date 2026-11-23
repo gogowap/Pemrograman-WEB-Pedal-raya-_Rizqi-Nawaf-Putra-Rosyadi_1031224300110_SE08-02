@@ -1,6 +1,13 @@
 import React from 'react';
 
-export default function RouteCard({ route, onSelectRoute, onDeleteRoute, isFavorite, onToggleFavorite }) {
+export default function RouteCard({
+  route,
+  onSelectRoute,
+  onEditRoute,
+  onDeleteRoute,
+  isFavorite,
+  onToggleFavorite,
+}) {
   const {
     id,
     nama,
@@ -26,7 +33,6 @@ export default function RouteCard({ route, onSelectRoute, onDeleteRoute, isFavor
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
           onError={(e) => {
-            // fallback to default image if path fails
             e.target.src = '/assets/images/Jalur Kabut Pinus Mangunan.webp';
           }}
         />
@@ -109,11 +115,20 @@ export default function RouteCard({ route, onSelectRoute, onDeleteRoute, isFavor
               {rekomendasi}
             </span>
             <div className="flex items-center gap-2 shrink-0">
+              {onEditRoute && (
+                <button
+                  onClick={() => onEditRoute(route)}
+                  className="py-1.5 px-2.5 rounded-xl text-xs text-[#244B37] hover:bg-[#78916A]/10 border border-[#244B37]/30 transition-colors cursor-pointer"
+                  title="Ubah rute (PATCH via API)"
+                >
+                  ✎ Edit
+                </button>
+              )}
               {onDeleteRoute && (
                 <button
                   onClick={() => onDeleteRoute(id)}
                   className="py-1.5 px-2.5 rounded-xl text-xs text-red-600 hover:bg-red-50 border border-red-200 transition-colors cursor-pointer"
-                  title="Hapus rute dari daftar state"
+                  title="Hapus rute dari backend/state"
                 >
                   Hapus
                 </button>

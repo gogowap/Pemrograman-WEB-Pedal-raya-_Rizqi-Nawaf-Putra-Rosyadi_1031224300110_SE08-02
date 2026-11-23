@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import RouteStats from './components/RouteStats';
 import RouteForm from './components/RouteForm';
@@ -17,14 +17,39 @@ import SafetySection from './components/SafetySection';
 import AboutSection from './components/AboutSection';
 import Footer from './components/Footer';
 import { INITIAL_ROUTES, INITIAL_PRODUCTS } from './data/mockData';
+import { routeApi } from './services/api';
 
 export default function App() {
   // ==========================================
-  // STATE MANAGEMENT (TUGAS 6 REACT DASAR)
+  // STATE MANAGEMENT (TUGAS 6 & BAB 9 NESTJS)
   // ==========================================
-  // 5.a: Simpan daftar item sebagai state (array) di App.jsx
   const [routes, setRoutes] = useState(INITIAL_ROUTES);
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
+
+  // Backend Integration State (NestJS API)
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'connected' | 'disconnected' | 'checking'
+  const [isEditingRoute, setIsEditingRoute] = useState(null);
+
+  // Sinkronisasi data rute dengan backend NestJS
+  const loadRoutesFromBackend = useCallback(async () => {
+    setBackendStatus('checking');
+    try {
+      const data = await routeApi.getRoutes();
+      if (Array.isArray(data) && data.length > 0) {
+        setRoutes(data);
+      }
+      setBackendStatus('connected');
+      setToastMessage('🟢 Terhubung ke Backend NestJS (:3000)');
+      setTimeout(() => setToastMessage(''), 3000);
+    } catch (err) {
+      console.warn('Backend NestJS belum aktif, beralih ke in-memory lokal:', err);
+      setBackendStatus('disconnected');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadRoutesFromBackend();
+  }, [loadRoutesFromBackend]);
 
   // Tab navigation state
   const [activeTab, setActiveTab] = useState('beranda');
@@ -85,27 +110,83 @@ export default function App() {
   };
 
   // ==========================================
-  // HANDLERS UNTUK ENTITAS RUTE
+  // HANDLERS UNTUK ENTITAS RUTE (CRUD NESTJS)
   // ==========================================
-  const handleAddRoute = (newRoute) => {
-    setRoutes((prev) => [newRoute, ...prev]);
-    setIsAddRouteOpen(false);
-    setToastMessage(`Rute "${newRoute.nama}" berhasil ditambahkan ke koleksi!`);
+  // CREATE: Tambah rute baru ke Backend (HTTP POST /routes)
+  const handleAddRoute = async (newRoute) => {
+    try {
+      const payload = {
+        nama: newRoute.nama,
+        kategori: newRoute.kategori,
+        lokasi: newRoute.lokasi,
+        jarak: Number(newRoute.jarak),
+        elevasi: Number(newRoute.elevasi) || 0,
+        kesulitan: newRoute.kesulitan,
+        durasi: newRoute.durasi,
+        kondisi: newRoute.kondisi,
+        rekomendasi: newRoute.rekomendasi,
+        foto: newRoute.foto,
+        deskripsi: newRoute.deskripsi,
+        terverifikasi: false,
+      };
+
+      const created = await routeApi.createRoute(payload);
+      setRoutes((prev) => [created, ...prev]);
+      setIsAddRouteOpen(false);
+      setBackendStatus('connected');
+      setToastMessage(`✓ Berhasil! Rute "${created.nama}" disimpan ke Backend NestJS.`);
+    } catch (err) {
+      // Menangkap ConflictException (nama duplikat) atau ValidationError dari ValidationPipe
+      setToastMessage(`⚠️ Gagal simpan rute: ${err.message}`);
+      console.error('Error create route:', err);
+    }
     setTimeout(() => setToastMessage(''), 5000);
   };
 
-  const handleDeleteRoute = (routeId) => {
-    const rute = routes.find((r) => r.id === routeId);
-    if (window.confirm(`Hapus rute "${rute?.nama || 'ini'}" dari daftar koleksi?`)) {
-      setRoutes((prev) => prev.filter((r) => r.id !== routeId));
-      setToastMessage('Rute telah dihapus dari koleksi.');
-      setTimeout(() => setToastMessage(''), 4000);
+  // UPDATE: Perbarui rute di Backend (HTTP PATCH /routes/:id)
+  const handleUpdateRoute = async (routeId, updateData) => {
+    try {
+      const updated = await routeApi.updateRoute(routeId, updateData);
+      setRoutes((prev) => prev.map((r) => (r.id === routeId ? updated : r)));
+      if (selectedRoute && selectedRoute.id === routeId) {
+        setSelectedRoute(updated);
+      }
+      setIsEditingRoute(null);
+      setBackendStatus('connected');
+      setToastMessage(`✓ Berhasil! Rute "${updated.nama}" diperbarui di Backend NestJS.`);
+    } catch (err) {
+      setToastMessage(`⚠️ Gagal memperbarui rute: ${err.message}`);
+      console.error('Error update route:', err);
     }
+    setTimeout(() => setToastMessage(''), 5000);
+  };
+
+  // DELETE: Hapus rute dari Backend (HTTP DELETE /routes/:id)
+  const handleDeleteRoute = async (routeId) => {
+    const rute = routes.find((r) => r.id === routeId);
+    if (!window.confirm(`Hapus rute "${rute?.nama || 'ini'}" dari koleksi PedalRaya?`)) {
+      return;
+    }
+
+    try {
+      await routeApi.deleteRoute(routeId);
+      setRoutes((prev) => prev.filter((r) => r.id !== routeId));
+      if (selectedRoute && selectedRoute.id === routeId) {
+        setSelectedRoute(null);
+      }
+      setBackendStatus('connected');
+      setToastMessage(`✓ Rute "${rute?.nama || routeId}" berhasil dihapus dari Backend NestJS.`);
+    } catch (err) {
+      // Fallback lokal jika backend tidak merespons
+      setRoutes((prev) => prev.filter((r) => r.id !== routeId));
+      setToastMessage(`Rute dihapus secara lokal (${err.message}).`);
+    }
+    setTimeout(() => setToastMessage(''), 4000);
   };
 
   const handleResetRoutes = () => {
-    setRoutes(INITIAL_ROUTES);
-    setToastMessage('Data rute berhasil dipulihkan.');
+    loadRoutesFromBackend();
+    setToastMessage('Data rute disinkronkan ulang dengan server.');
     setTimeout(() => setToastMessage(''), 4000);
   };
 
@@ -127,8 +208,8 @@ export default function App() {
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenAddRoute={() => setIsAddRouteOpen(true)}
-        onOpenAddProduct={() => setIsAddProductOpen(true)}
+        backendStatus={backendStatus}
+        onRefreshBackend={loadRoutesFromBackend}
       />
 
       {/* Global Toast */}
@@ -543,6 +624,7 @@ export default function App() {
               <RouteList
                 routes={routes}
                 onSelectRoute={setSelectedRoute}
+                onEditRoute={(route) => setIsEditingRoute(route)}
                 onDeleteRoute={handleDeleteRoute}
                 onOpenAddModal={() => setIsAddRouteOpen(true)}
                 onResetData={handleResetRoutes}
@@ -616,6 +698,7 @@ export default function App() {
         <RouteDetailModal
           route={selectedRoute}
           onClose={() => setSelectedRoute(null)}
+          onEditRoute={(route) => setIsEditingRoute(route)}
         />
       )}
 
@@ -627,10 +710,20 @@ export default function App() {
       )}
 
       {/* Controlled Component Forms */}
+      {/* Tambah Rute Baru (POST) */}
       {isAddRouteOpen && (
         <RouteForm
           onAddRoute={handleAddRoute}
           onClose={() => setIsAddRouteOpen(false)}
+        />
+      )}
+
+      {/* Edit Rute (PATCH) */}
+      {isEditingRoute && (
+        <RouteForm
+          initialData={isEditingRoute}
+          onUpdateRoute={handleUpdateRoute}
+          onClose={() => setIsEditingRoute(null)}
         />
       )}
 

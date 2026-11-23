@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import LocalPhotoTiles from './LocalPhotoTiles';
 
 const SAMPLE_PHOTOS = [
   { label: 'Hutan Pinus Mangunan', url: '/assets/images/Jalur Kabut Pinus Mangunan.webp' },
@@ -10,7 +11,9 @@ const SAMPLE_PHOTOS = [
   { label: 'Sunset Gunung', url: '/assets/images/pexels-run-ffwpu-5687405.jpg' },
 ];
 
-export default function RouteForm({ onAddRoute, onClose }) {
+export default function RouteForm({ onAddRoute, onUpdateRoute, initialData, onClose }) {
+  const isEditMode = Boolean(initialData);
+
   const [formData, setFormData] = useState({
     nama: '',
     kategori: 'gravel',
@@ -25,7 +28,27 @@ export default function RouteForm({ onAddRoute, onClose }) {
     deskripsi: '',
   });
 
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        nama: initialData.nama || '',
+        kategori: initialData.kategori || 'gravel',
+        lokasi: initialData.lokasi || '',
+        jarak: initialData.jarak !== undefined ? String(initialData.jarak) : '',
+        elevasi: initialData.elevasi !== undefined ? String(initialData.elevasi) : '',
+        durasi: initialData.durasi || '',
+        kesulitan: initialData.kesulitan || 'menengah',
+        kondisi: initialData.kondisi || 'Aspal Halus & Tanah Padat',
+        rekomendasi: initialData.rekomendasi || 'Rekomendasi Ban: 38-45c',
+        foto: initialData.foto || SAMPLE_PHOTOS[0].url,
+        deskripsi: initialData.deskripsi || '',
+      });
+    }
+  }, [initialData]);
+
   const [errorMsg, setErrorMsg] = useState('');
+  const [uploadedPhoto, setUploadedPhoto] = useState('');
+  const [photoError, setPhotoError] = useState('');
 
   // Controlled component input change handler
   const handleChange = (e) => {
@@ -42,6 +65,10 @@ export default function RouteForm({ onAddRoute, onClose }) {
       setErrorMsg('Nama rute wajib diisi.');
       return;
     }
+    if (formData.nama.trim().length < 3) {
+      setErrorMsg('Nama rute minimal 3 karakter (aturan validasi DTO).');
+      return;
+    }
     if (!formData.lokasi.trim()) {
       setErrorMsg('Lokasi / daerah rute wajib diisi.');
       return;
@@ -51,7 +78,6 @@ export default function RouteForm({ onAddRoute, onClose }) {
       return;
     }
 
-    // Determine category and difficulty label
     const categoryLabels = {
       road: 'Road Bike',
       gravel: 'Gravel & All-Road',
@@ -66,37 +92,58 @@ export default function RouteForm({ onAddRoute, onClose }) {
       sulit: 'Menantang / Mahir',
     };
 
-    const newRoute = {
-      id: `route-${Date.now()}`,
-      nama: formData.nama.trim(),
-      kategori: formData.kategori,
-      kategoriLabel: categoryLabels[formData.kategori] || 'Gowes',
-      lokasi: formData.lokasi.trim(),
-      kondisi: formData.kondisi.trim() || 'Kondisi Jalan Campuran',
-      jarak: Number(formData.jarak),
-      elevasi: Number(formData.elevasi) || 0,
-      durasi: formData.durasi.trim() || `${(Number(formData.jarak) / 20).toFixed(1)} Jam`,
-      kesulitan: formData.kesulitan,
-      kesulitanLabel: difficultyLabels[formData.kesulitan] || 'Menengah',
-      rekomendasi: formData.rekomendasi.trim() || 'Periksa kondisi rem dan ban',
-      foto: formData.foto || SAMPLE_PHOTOS[0].url,
-      deskripsi: formData.deskripsi.trim() || 'Rute petualangan bersepeda pilihan komunitas PedalRaya.',
-      ringkasanLengkap: formData.deskripsi.trim() || 'Rute indah dengan pesona bentang alam khas nusantara.',
-      waktuTerbaik: '06:00 - 09:30 WIB',
-      elevasiMaks: `${formData.elevasi || 400} mdpl`,
-      permukaan: {
-        aspal: formData.kategori === 'road' ? 95 : formData.kategori === 'gravel' ? 60 : 25,
-        tanah: formData.kategori === 'mtb' ? 65 : formData.kategori === 'gravel' ? 30 : 5,
-        makadam: 10,
-      },
-      checkpoints: [
-        { km: 'KM 0', nama: 'Titik Awal Keberangkatan', desc: `Start kumpul di ${formData.lokasi}. Briefing jalur dan keselamatan.` },
-        { km: `KM ${Math.round(Number(formData.jarak) * 0.5)}`, nama: 'Rest Point & Puncak Tanjakan', desc: 'Istirahat minum air dan menikmati pemandangan alam.' },
-        { km: `KM ${formData.jarak}`, nama: 'Garis Akhir & Tempat Santap', desc: 'Finish gowes, sharing cerita petualangan.' },
-      ]
-    };
+    if (isEditMode) {
+      const updatePayload = {
+        nama: formData.nama.trim(),
+        kategori: formData.kategori,
+        kategoriLabel: categoryLabels[formData.kategori] || 'Gowes',
+        lokasi: formData.lokasi.trim(),
+        kondisi: formData.kondisi.trim() || 'Kondisi Jalan Campuran',
+        jarak: Number(formData.jarak),
+        elevasi: Number(formData.elevasi) || 0,
+        durasi: formData.durasi.trim() || `${(Number(formData.jarak) / 20).toFixed(1)} Jam`,
+        kesulitan: formData.kesulitan,
+        kesulitanLabel: difficultyLabels[formData.kesulitan] || 'Menengah',
+        rekomendasi: formData.rekomendasi.trim() || 'Periksa kondisi rem dan ban',
+        foto: formData.foto || SAMPLE_PHOTOS[0].url,
+        deskripsi: formData.deskripsi.trim() || 'Rute petualangan bersepeda pilihan komunitas PedalRaya.',
+      };
 
-    onAddRoute(newRoute);
+      onUpdateRoute(initialData.id, updatePayload);
+    } else {
+      const newRoute = {
+        id: `route-${Date.now()}`,
+        nama: formData.nama.trim(),
+        kategori: formData.kategori,
+        kategoriLabel: categoryLabels[formData.kategori] || 'Gowes',
+        lokasi: formData.lokasi.trim(),
+        kondisi: formData.kondisi.trim() || 'Kondisi Jalan Campuran',
+        jarak: Number(formData.jarak),
+        elevasi: Number(formData.elevasi) || 0,
+        durasi: formData.durasi.trim() || `${(Number(formData.jarak) / 20).toFixed(1)} Jam`,
+        kesulitan: formData.kesulitan,
+        kesulitanLabel: difficultyLabels[formData.kesulitan] || 'Menengah',
+        rekomendasi: formData.rekomendasi.trim() || 'Periksa kondisi rem dan ban',
+        foto: formData.foto || SAMPLE_PHOTOS[0].url,
+        deskripsi: formData.deskripsi.trim() || 'Rute petualangan bersepeda pilihan komunitas PedalRaya.',
+        ringkasanLengkap: formData.deskripsi.trim() || 'Rute indah dengan pesona bentang alam khas nusantara.',
+        waktuTerbaik: '06:00 - 09:30 WIB',
+        elevasiMaks: `${formData.elevasi || 400} mdpl`,
+        permukaan: {
+          aspal: formData.kategori === 'road' ? 95 : formData.kategori === 'gravel' ? 60 : 25,
+          tanah: formData.kategori === 'mtb' ? 65 : formData.kategori === 'gravel' ? 30 : 5,
+          makadam: 10,
+        },
+        checkpoints: [
+          { km: 'KM 0', nama: 'Titik Awal Keberangkatan', desc: `Start kumpul di ${formData.lokasi}. Briefing jalur dan keselamatan.` },
+          { km: `KM ${Math.round(Number(formData.jarak) * 0.5)}`, nama: 'Rest Point & Puncak Tanjakan', desc: 'Istirahat minum air dan menikmati pemandangan alam.' },
+          { km: `KM ${formData.jarak}`, nama: 'Garis Akhir & Tempat Santap', desc: 'Finish gowes, sharing cerita petualangan.' },
+        ],
+        terverifikasi: false,
+      };
+
+      onAddRoute(newRoute);
+    }
   };
 
   return (
@@ -107,10 +154,10 @@ export default function RouteForm({ onAddRoute, onClose }) {
         <div className="flex items-center justify-between pb-4 border-b border-[#244B37]/10 mb-6">
           <div>
             <span className="text-xs font-bold text-[#78916A] uppercase tracking-wider block mb-1">
-              Controlled Component Form
+              {isEditMode ? 'REST API: HTTP PATCH' : 'REST API: HTTP POST'}
             </span>
             <h2 className="text-2xl font-extrabold text-[#183426]">
-              Tambah Rute Bersepeda Baru
+              {isEditMode ? 'Ubah / Edit Rute Bersepeda' : 'Tambah Rute Bersepeda Baru'}
             </h2>
           </div>
           <button
@@ -141,8 +188,7 @@ export default function RouteForm({ onAddRoute, onClose }) {
               name="nama"
               value={formData.nama}
               onChange={handleChange}
-              placeholder="Contoh: Lingkar Lereng Merbabu via Selo"
-              required
+              placeholder="Contoh: Lingkar Jalur Pinus Mangunan"
               className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
             />
           </div>
@@ -150,22 +196,7 @@ export default function RouteForm({ onAddRoute, onClose }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
-                Lokasi / Daerah *
-              </label>
-              <input
-                type="text"
-                name="lokasi"
-                value={formData.lokasi}
-                onChange={handleChange}
-                placeholder="Contoh: Boyolali, Jawa Tengah"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
-                Kategori Disiplin *
+                Kategori Rute *
               </label>
               <select
                 name="kategori"
@@ -173,65 +204,77 @@ export default function RouteForm({ onAddRoute, onClose }) {
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
               >
-                <option value="gravel">Gravel & All-Road</option>
                 <option value="road">Road Bike</option>
+                <option value="gravel">Gravel & All-Road</option>
                 <option value="mtb">Mountain Bike (MTB)</option>
                 <option value="touring">Touring & Bikepacking</option>
                 <option value="leisure">Santai / Leisure</option>
               </select>
             </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
+                Tingkat Kesulitan *
+              </label>
+              <select
+                name="kesulitan"
+                value={formData.kesulitan}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
+              >
+                <option value="mudah">Mudah (Pemula / Santai)</option>
+                <option value="menengah">Menengah</option>
+                <option value="sulit">Menantang / Mahir</option>
+              </select>
+            </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
+              Lokasi / Daerah *
+            </label>
+            <input
+              type="text"
+              name="lokasi"
+              value={formData.lokasi}
+              onChange={handleChange}
+              placeholder="Contoh: Dlingo, Bantul, DI Yogyakarta"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
                 Jarak (km) *
               </label>
               <input
                 type="number"
+                step="0.1"
+                min="0.1"
                 name="jarak"
                 value={formData.jarak}
                 onChange={handleChange}
-                placeholder="45"
-                min="1"
-                required
-                className="w-full px-3 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
+                placeholder="Misal: 42.5"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
-                Elevasi (+m)
+                Elevasi (meter)
               </label>
               <input
                 type="number"
+                min="0"
                 name="elevasi"
                 value={formData.elevasi}
                 onChange={handleChange}
-                placeholder="750"
-                min="0"
-                className="w-full px-3 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
+                placeholder="Misal: 650"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
-                Tingkat Kesulitan
-              </label>
-              <select
-                name="kesulitan"
-                value={formData.kesulitan}
-                onChange={handleChange}
-                className="w-full px-2 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
-              >
-                <option value="mudah">Mudah</option>
-                <option value="menengah">Menengah</option>
-                <option value="sulit">Menantang</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
                 Estimasi Durasi
@@ -241,41 +284,56 @@ export default function RouteForm({ onAddRoute, onClose }) {
                 name="durasi"
                 value={formData.durasi}
                 onChange={handleChange}
-                placeholder="Misal: 3.0 Jam"
+                placeholder="Misal: 2.5 Jam"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
+                Kondisi Permukaan Jalan
+              </label>
+              <input
+                type="text"
+                name="kondisi"
+                value={formData.kondisi}
+                onChange={handleChange}
+                placeholder="Misal: Aspal Halus & Tanah Padat"
                 className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1">
-                Rekomendasi Perlengkapan
+                Rekomendasi Ban / Gear
               </label>
               <input
                 type="text"
                 name="rekomendasi"
                 value={formData.rekomendasi}
                 onChange={handleChange}
-                placeholder="Misal: Ban 40c / 2 Bidon Air"
+                placeholder="Misal: Rekomendasi Ban 38-45c"
                 className="w-full px-4 py-2.5 rounded-xl border border-[#244B37]/20 bg-[#F6F4ED]/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#244B37]"
               />
             </div>
           </div>
 
-          {/* Photo Selection */}
           <div>
-            <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1.5">
-              Pilih Foto Sampul Jalur
+            <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-2">
+              Pilih Foto Ilustrasi Rute
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
               {SAMPLE_PHOTOS.map((p, idx) => (
                 <button
-                  key={idx}
                   type="button"
-                  onClick={() => setFormData({ ...formData, foto: p.url })}
-                  className={`relative rounded-xl overflow-hidden aspect-[4/3] border-2 transition-all cursor-pointer ${
+                  key={idx}
+                  onClick={() => setFormData((prev) => ({ ...prev, foto: p.url }))}
+                  className={`aspect-video rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
                     formData.foto === p.url
-                      ? 'border-[#244B37] ring-2 ring-[#244B37]/40 scale-105'
-                      : 'border-transparent opacity-70 hover:opacity-100'
+                      ? 'border-[#244B37] ring-2 ring-[#244B37]/30 scale-105'
+                      : 'border-transparent opacity-60 hover:opacity-100'
                   }`}
                   title={p.label}
                 >
@@ -312,7 +370,7 @@ export default function RouteForm({ onAddRoute, onClose }) {
               type="submit"
               className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-[#244B37] hover:bg-[#183426] transition-colors shadow-sm cursor-pointer"
             >
-              + Tambah Rute ke Koleksi
+              {isEditMode ? '✓ Simpan Perubahan Rute' : '+ Tambah Rute ke Koleksi'}
             </button>
           </div>
         </form>

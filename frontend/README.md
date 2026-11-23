@@ -57,8 +57,8 @@ State daftar rute disimpan sebagai array di `App.jsx` (`useState(INITIAL_ROUTES)
 # 1. Clone repository
 git clone <url-repository-anda>
 
-# 2. Masuk ke folder project (yang berisi package.json)
-cd pedalraya
+# 2. Masuk ke folder frontend (yang berisi package.json)
+cd frontend
 
 # 3. Install dependensi
 npm install

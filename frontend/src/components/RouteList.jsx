@@ -4,6 +4,7 @@ import RouteCard from './RouteCard';
 export default function RouteList({
   routes,
   onSelectRoute,
+  onEditRoute,
   onDeleteRoute,
   onOpenAddModal,
   onResetData,
@@ -145,7 +146,6 @@ export default function RouteList({
       {routes.length === 0 ? (
         <div className="bg-white rounded-3xl p-10 sm:p-14 text-center border-2 border-dashed border-[#244B37]/20 shadow-sm my-6">
           <div className="w-16 h-16 rounded-2xl bg-[#78916A]/15 text-[#244B37] flex items-center justify-center mx-auto mb-4 text-3xl">
-            🚴‍♂️
           </div>
           {/* Exact required sentence */}
           <h3 className="text-2xl font-extrabold text-[#183426] mb-2">
@@ -201,6 +201,7 @@ export default function RouteList({
               key={route.id}
               route={route}
               onSelectRoute={onSelectRoute}
+              onEditRoute={onEditRoute}
               onDeleteRoute={onDeleteRoute}
               isFavorite={favorites.includes(route.id)}
               onToggleFavorite={onToggleFavorite}

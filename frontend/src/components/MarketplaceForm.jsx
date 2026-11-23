@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LocalPhotoTiles from './LocalPhotoTiles';
 
 const PRODUCT_SAMPLE_PHOTOS = [
   { label: 'Road Bike Shimano 105', url: '/assets/images/Road Bike Aluminium 2×11 Shimano 105 (Size 52).jpg' },
@@ -16,6 +17,8 @@ const PRODUCT_SAMPLE_PHOTOS = [
 ];
 
 export default function MarketplaceForm({ onAddProduct, onClose }) {
+  const [uploadedPhoto, setUploadedPhoto] = useState('');
+  const [photoError, setPhotoError] = useState('');
   const [formData, setFormData] = useState({
     nama: '',
     kategori: 'sepeda',
@@ -248,9 +251,19 @@ export default function MarketplaceForm({ onAddProduct, onClose }) {
           {/* Photo Selector */}
           <div>
             <label className="block text-xs font-bold text-[#292D28] uppercase tracking-wider mb-1.5">
-              Pilih Foto Sampul Produk
+              Pilih atau Unggah Foto Sampul Produk
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+              <LocalPhotoTiles
+                uploadedPhoto={uploadedPhoto}
+                selected={formData.foto === uploadedPhoto}
+                onUpload={(url) => {
+                  setUploadedPhoto(url);
+                  setFormData((prev) => ({ ...prev, foto: url }));
+                }}
+                onSelect={() => setFormData((prev) => ({ ...prev, foto: uploadedPhoto }))}
+                onError={setPhotoError}
+              />
               {PRODUCT_SAMPLE_PHOTOS.map((p, idx) => (
                 <button
                   key={idx}
@@ -267,6 +280,7 @@ export default function MarketplaceForm({ onAddProduct, onClose }) {
                 </button>
               ))}
             </div>
+            {photoError && <p className="text-xs text-red-600 mt-1.5">{photoError}</p>}
           </div>
 
           <div>

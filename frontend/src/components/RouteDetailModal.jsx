@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function RouteDetailModal({ route, onClose }) {
+export default function RouteDetailModal({ route, onClose, onEditRoute }) {
   if (!route) return null;
 
   const [gearChecked, setGearChecked] = useState({
@@ -48,12 +48,26 @@ export default function RouteDetailModal({ route, onClose }) {
             <span className="font-bold text-[#183426] line-clamp-1">{nama}</span>
           </div>
 
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-xl text-xs font-bold text-[#183426] bg-white border border-[#244B37]/20 hover:bg-[#244B37] hover:text-white transition-colors cursor-pointer"
-          >
-            ← Tutup Panduan
-          </button>
+          <div className="flex items-center gap-2">
+            {onEditRoute && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onEditRoute(route);
+                }}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-[#244B37] bg-white border border-[#244B37]/30 hover:bg-[#78916A]/10 transition-colors cursor-pointer"
+                title="Edit data rute di backend"
+              >
+                ✎ Edit Rute
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="px-4 py-1.5 rounded-xl text-xs font-bold text-[#183426] bg-white border border-[#244B37]/20 hover:bg-[#244B37] hover:text-white transition-colors cursor-pointer"
+            >
+              ← Tutup Panduan
+            </button>
+          </div>
         </div>
 
         <div className="p-6 sm:p-10 space-y-8">
